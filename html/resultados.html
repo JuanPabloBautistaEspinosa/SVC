@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Resultados en tiempo real del sistema de votacion">
+    <title>Resultados - Sistema de Votacion</title>
+    <link rel="stylesheet" href="../style/global.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 11l3 3L22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                </div>
+                <h1>VotoSeguro</h1>
+            </div>
+            <nav>
+                <a href="index.html">Votar</a>
+                <a href="resultados.html" class="active">Resultados</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div class="hero-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                Datos en Tiempo Real
+            </div>
+            <h2>Resultados de la Votacion</h2>
+            <p>Visualiza el conteo de votos actualizado en tiempo real</p>
+        </section>
+
+        <main>
+            <section class="card results-section">
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <span class="stat-value" id="totalVotes">0</span>
+                        <span class="stat-label">Total de Votos</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="leadingCandidate">-</span>
+                        <span class="stat-label">Candidato Lider</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="leadingVotes">0</span>
+                        <span class="stat-label">Votos del Lider</span>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Distribucion de Votos</h3>
+                    <div class="bar-chart" id="barChart">
+                        <div class="loading">
+                            <span class="loading-spinner"></span>
+                            Cargando resultados...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-table">
+                    <h3>Detalle por Candidato</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Posicion</th>
+                                    <th>Candidato</th>
+                                    <th>Votos</th>
+                                    <th>Porcentaje</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsBody">
+                                <tr>
+                                    <td colspan="4" class="loading">
+                                        <span class="loading-spinner"></span>
+                                        Cargando...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-footer">
+                    <div class="voters-count">
+                        <span class="dot"></span>
+                        <span id="lastUpdate">Ultima actualizacion: -</span>
+                    </div>
+                    <button class="btn-secondary" onclick="loadResults()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6"/>
+                            <path d="M1 20v-6h6"/>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                        </svg>
+                        Actualizar
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Sistema de Votacion Segura</p>
+            <div class="security-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Todos los votos son encriptados con bcrypt
+            </div>
+        </footer>
+    </div>
+
+    <script src="results.js"></script>
+</body>
+</html>

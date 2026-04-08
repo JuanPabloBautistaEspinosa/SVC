@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de votacion secreta, segura y anonima">
+    <title>Sistema de Votacion Secreta</title>
+    <link rel="stylesheet" href="../style/global.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗳️</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 11l3 3L22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                </div>
+                <h1>VotoSeguro</h1>
+            </div>
+            <nav>
+                <a href="index.html" class="active">Votar</a>
+                <a href="resultados.html">Resultados</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div class="hero-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Votacion Encriptada
+            </div>
+            <h2>Tu voto, tu decision</h2>
+            <p>Emite tu voto de manera segura y anonima. Cada voto cuenta y esta protegido.</p>
+        </section>
+
+        <main>
+            <div class="grid">
+                <!-- Formulario de Votacion -->
+                <section class="card voting-form">
+                    <div class="card-header">
+                        <h2>Emitir Voto</h2>
+                        <p>Completa el formulario para registrar tu voto</p>
+                    </div>
+                    <form id="voteForm">
+                        <div class="form-group">
+                            <label for="cedula">Numero de Cedula</label>
+                            <div class="input-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                                    <line x1="2" y1="10" x2="22" y2="10"/>
+                                </svg>
+                                <input 
+                                    type="text" 
+                                    id="cedula" 
+                                    name="cedula" 
+                                    placeholder="Ej: 12345678"
+                                    required
+                                    pattern="[0-9]+"
+                                    autocomplete="off"
+                                >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="candidates-label">
+                                <label>Selecciona tu Candidato</label>
+                                <span>Obligatorio</span>
+                            </div>
+                            <div class="candidates">
+                                <label class="candidate-option">
+                                    <input type="radio" name="voto" value="1" required>
+                                    <div class="candidate-card">
+                                        <div class="candidate-number">1</div>
+                                        <div class="candidate-info">
+                                            <div class="name">Candidato 1</div>
+                                            <div class="party">Partido A</div>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="candidate-option">
+                                    <input type="radio" name="voto" value="2">
+                                    <div class="candidate-card">
+                                        <div class="candidate-number">2</div>
+                                        <div class="candidate-info">
+                                            <div class="name">Candidato 2</div>
+                                            <div class="party">Partido B</div>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="candidate-option">
+                                    <input type="radio" name="voto" value="3">
+                                    <div class="candidate-card">
+                                        <div class="candidate-number">3</div>
+                                        <div class="candidate-info">
+                                            <div class="name">Candidato 3</div>
+                                            <div class="party">Partido C</div>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="candidate-option">
+                                    <input type="radio" name="voto" value="0">
+                                    <div class="candidate-card voto-blanco">
+                                        <div class="candidate-number">-</div>
+                                        <div class="candidate-info">
+                                            <div class="name">Voto en Blanco</div>
+                                            <div class="party">Sin preferencia</div>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary" id="submitBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            Confirmar Voto
+                        </button>
+                    </form>
+                    <div id="message" class="message hidden"></div>
+                </section>
+
+                <!-- Tabla de Votantes -->
+                <section class="card voters-table">
+                    <div class="card-header">
+                        <h2>Votantes Registrados</h2>
+                        <p>Cedulas que ya emitieron su voto</p>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Cedula</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="votersBody">
+                                <tr>
+                                    <td colspan="3" class="loading">
+                                        <span class="loading-spinner"></span>
+                                        Cargando votantes...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <div class="voters-count">
+                            <span class="dot"></span>
+                            <span id="totalVoters">0 votantes registrados</span>
+                        </div>
+                        <button class="btn-secondary" onclick="loadVoters()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 4v6h-6"/>
+                                <path d="M1 20v-6h6"/>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                            </svg>
+                            Actualizar
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer>
+            <p>Sistema de Votacion Segura</p>
+            <div class="security-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Todos los votos son encriptados con bcrypt
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
