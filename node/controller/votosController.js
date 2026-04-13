@@ -4,28 +4,24 @@ const bcrypt = require('bcrypt');
 exports.emitirVoto = async (req, res) => {
     const { cedula, voto } = req.body;
     
-    if (!cedula || !voto) {
+    if (!cedula || voto === undefined) {
         return res.status(400).json({ error: 'Cedula y voto son requeridos' });
     }
 
     try {
-        // Verificar si ya voto
         const [rows] = await pool.query('SELECT * FROM votantes WHERE cedula = ?', [cedula]);
         
         if (rows.length > 0) {
-            return res.status(400).json({ error: 'Esta cedula ya ha emitido un voto' });
+            return res.status(409).json({ error: 'Esta cedula ya ha emitido un voto' });
         }
 
-        // Encriptar el voto
         const votoHash = await bcrypt.hash(voto.toString(), 10);
 
-        // Registrar votante
-        await pool.query('INSERT INTO votantes (cedula, fecha) VALUES (?, NOW())', [cedula]);
+        await pool.query(
+            'INSERT INTO votantes (cedula, voto_hash, fecha) VALUES (?, ?, NOW())',
+            [cedula, votoHash]
+        );
 
-        // Registrar voto encriptado
-        await pool.query('INSERT INTO votos (voto) VALUES (?)', [votoHash]);
-
-        // Registrar voto para resultados
         await pool.query('INSERT INTO resultados (candidato) VALUES (?)', [voto]);
 
         res.json({ message: 'Voto emitido correctamente' });
@@ -35,9 +31,50 @@ exports.emitirVoto = async (req, res) => {
     }
 };
 
+exports.actualizarVoto = async (req, res) => {
+    const { cedula, voto } = req.body;
+
+    try {
+        // Obtener voto anterior
+        const [rows] = await pool.query(
+            'SELECT voto_anterior FROM votantes WHERE cedula = ?', [cedula]
+        );
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Cedula no encontrada' });
+        }
+
+        const votoAnterior = rows[0].voto_anterior;
+        const votoHash = await bcrypt.hash(voto.toString(), 10);
+
+        // Actualizar votante
+        await pool.query(
+            'UPDATE votantes SET voto_hash = ?, voto_anterior = ?, fecha = NOW() WHERE cedula = ?',
+            [votoHash, voto, cedula]
+        );
+
+        // Restar voto anterior del conteo
+        if (votoAnterior !== null) {
+            await pool.query(
+                'DELETE FROM resultados WHERE candidato = ? LIMIT 1', [votoAnterior]
+            );
+        }
+
+        // Agregar nuevo voto al conteo
+        await pool.query('INSERT INTO resultados (candidato) VALUES (?)', [voto]);
+
+        res.json({ message: 'Voto actualizado correctamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al actualizar el voto' });
+    }
+};
+
 exports.obtenerVotos = async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT id, cedula, fecha FROM votantes ORDER BY fecha DESC');
+        const [rows] = await pool.query(
+            'SELECT id, cedula, voto_hash, fecha FROM votantes ORDER BY fecha DESC'
+        );
         res.json(rows);
     } catch (error) {
         console.error(error);

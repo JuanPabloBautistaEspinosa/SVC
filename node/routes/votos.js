@@ -1,9 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const votosController = require('../controller/votosController');
+const {
+    emitirVoto,
+    actualizarVoto,
+    obtenerVotos,
+    obtenerResultados
+} = require('../controller/votosController');
 
-router.post('/', votosController.emitirVoto);
-router.get('/usuarios', votosController.obtenerVotos);
-router.get('/resultados', votosController.obtenerResultados);
+router.post('/', emitirVoto);
+router.put('/actualizar', actualizarVoto);
+router.get('/usuarios', obtenerVotos);
+router.get('/resultados', obtenerResultados);
 
 module.exports = router;

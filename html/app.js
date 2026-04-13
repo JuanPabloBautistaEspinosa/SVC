@@ -24,9 +24,7 @@ document.getElementById('voteForm').addEventListener('submit', async (e) => {
     try {
         const response = await fetch(`${API_URL}/votos`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 cedula: cedula,
                 voto: parseInt(votoInput.value)
@@ -35,6 +33,17 @@ document.getElementById('voteForm').addEventListener('submit', async (e) => {
 
         const data = await response.json();
 
+        // ── Cédula ya votó → preguntar si desea actualizar ──
+        if (response.status === 409) {
+            const confirmar = confirm(
+                `La cédula ${cedula} ya emitió un voto.\n¿Deseas actualizarlo por el candidato seleccionado?`
+            );
+            if (confirmar) {
+                await actualizarVoto(cedula, parseInt(votoInput.value));
+            }
+            return;
+        }
+
         if (response.ok) {
             showMessage('Voto emitido correctamente. Gracias por participar.', 'success');
             document.getElementById('voteForm').reset();
@@ -42,6 +51,7 @@ document.getElementById('voteForm').addEventListener('submit', async (e) => {
         } else {
             showMessage(data.error || 'Error al emitir el voto', 'error');
         }
+
     } catch (error) {
         showMessage('Error de conexion con el servidor', 'error');
         console.error('Error:', error);
@@ -56,6 +66,30 @@ document.getElementById('voteForm').addEventListener('submit', async (e) => {
         `;
     }
 });
+
+// Actualizar voto existente
+async function actualizarVoto(cedula, voto) {
+    try {
+        const response = await fetch(`${API_URL}/votos/actualizar`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cedula, voto })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showMessage('Voto actualizado correctamente.', 'success');
+            document.getElementById('voteForm').reset();
+            loadVoters();
+        } else {
+            showMessage(data.error || 'Error al actualizar el voto', 'error');
+        }
+    } catch (error) {
+        showMessage('Error de conexion al actualizar', 'error');
+        console.error('Error:', error);
+    }
+}
 
 // Mostrar mensaje
 function showMessage(text, type) {
@@ -77,13 +111,16 @@ async function loadVoters() {
         const voters = await response.json();
         
         if (voters.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" class="loading">No hay votantes registrados</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="loading">No hay votantes registrados</td></tr>';
             document.getElementById('totalVoters').textContent = 'Total: 0 votantes';
             return;
         }
 
         tbody.innerHTML = voters.map((voter, index) => {
             const maskedCedula = maskCedula(voter.cedula);
+            const hashCorto = voter.voto_hash
+                ? voter.voto_hash.substring(0, 20) + '...'
+                : 'N/A';
             const fecha = new Date(voter.fecha).toLocaleString('es-ES', {
                 day: '2-digit',
                 month: '2-digit',
@@ -96,14 +133,24 @@ async function loadVoters() {
                 <tr>
                     <td>${index + 1}</td>
                     <td>${maskedCedula}</td>
+                    <td>
+                        <span 
+                            class="hash-cell" 
+                            title="${voter.voto_hash || ''}"
+                            style="font-family:monospace; font-size:0.75rem; cursor:help;"
+                        >
+                            ${hashCorto}
+                        </span>
+                    </td>
                     <td>${fecha}</td>
                 </tr>
             `;
         }).join('');
 
         document.getElementById('totalVoters').textContent = `Total: ${voters.length} votantes`;
+
     } catch (error) {
-        tbody.innerHTML = '<tr><td colspan="3" class="loading">Error al cargar los votantes</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="loading">Error al cargar los votantes</td></tr>';
         console.error('Error:', error);
     }
 }

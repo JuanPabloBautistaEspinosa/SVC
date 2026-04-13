@@ -1,6 +1,6 @@
 -- Crear base de datos
-CREATE DATABASE IF NOT EXISTS votacion_db;
-USE votacion_db;
+CREATE DATABASE IF NOT EXISTS Ra3;
+USE Ra3;
 
 -- Tabla de votantes (registra quien voto, sin el voto)
 CREATE TABLE IF NOT EXISTS votantes (
@@ -24,3 +24,5 @@ CREATE TABLE IF NOT EXISTS resultados (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_candidato (candidato)
 );
+ALTER TABLE votantes ADD COLUMN voto_hash VARCHAR(255);
+ALTER TABLE votantes ADD COLUMN voto_anterior VARCHAR(10);
